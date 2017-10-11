@@ -27,6 +27,8 @@ _NOTE_ pass the quoted string-name of the object, not the object itself.}
 
 \item{arg_to_iterate_over}{Object, not the string-name of the object.}
 
+\item{FUNC}{function or string of length 1. function to iterate over.  Normally the same function in which \code{iterateWithArgs} is being called}
+
 \item{nm.arg_to_iterate_over}{The string-name of the object. Defaults to \code{as.character(substitute(arg_to_iterate_over))}}
 }
 \value{

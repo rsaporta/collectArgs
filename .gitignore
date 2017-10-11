@@ -49,3 +49,4 @@ sftp-config.json
 *.RDS
 ## ---------------- FILES SPECIFIC TO THIS PROJECT ---------------- ##
 inst/doc
+/building and testing.R

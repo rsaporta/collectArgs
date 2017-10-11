@@ -1,0 +1,183 @@
+
+#==========================================================
+# Demo multi-function roxygen2 page using @rdname with NULL
+#==========================================================
+
+#' collectArgs and iterateWithArgs
+#' 
+#' Functions to cleanly collect arguments from within one function or environment (to then pass to another or to iterate over)
+#' 
+#' \code{collectArgs()} colects objects from an envrionment into a single list. Generally, the list will then be passed to other functions (usually with \code{\link[base]{do.call}})
+#' 
+#' \code{iterateWithArgs()} similarly collects the objects in an environment, with the difference that one specific object is selected to iterate over. For each iteration, the given value is passed along with all the other objects to \code{FUNC}.
+#'
+# # ' @section After Arguments and Value sections:
+# # ' Despite its location, this actually comes after the Arguments and Value sections.
+# # ' Also, don't need to use null, could annotate first function, and then
+# # ' using function name as the groupBy name is more intuitive.
+#' 
+#' @param except A vector of string values. Objects to \emph{NOT} include in the collection
+#'               Generally, the user will not want to pass objets created inside the function and hence will pass to except
+#'               _NOTE_ pass the quoted string-name of the object, not the object itself.
+#' @param incl.dots A single logical value. Should the \code{...} be collected as well?  Default is \code{TRUE}.
+#'                  \emph{NOTE: Has no effect in functions without dots argument}
+#' @param all.names A single logical value. Passed to \code{ls()}. When \code{FALSE}, then objects whose name begins with a '.' are omitted from the collection
+#' @param envir     An \code{environment} object. Passed to \code{ls()}. The environment from which to collect the objects. Defaults to \code{parent.frame}
+#'
+#' @return 
+#' for \code{collectArgs}: A list of all of the objects in \code{envir} (less any objects excluded via the parameters). The names of the list are the names of object in \code{envir}.
+#' 
+#' for \code{iterateWithArgs}: A list of the return values of \code{FUNC}, the length of \code{arg_to_iterate_over}. Naming of the list will be handled by \code{\link[base]{do.call}}
+#' 
+#' @name collectArgs-and-iterateWithArgs
+#' @examples
+#' sample_function <- function(x, base, thresh=500, verbose=TRUE) {
+#'   some_object    <- is.na(x) ## an example of an object that we will exclude
+#'   another_object <- 1:10     ## an example of an object that we will exclude
+#' 
+#'   if (length(x) > 1) {
+#'     return(iterateWithArgs(x, FUNC=sample_function, except=c("some_object", "another_object")))
+#'   }
+#' 
+#'   ret <- (base ^ x)
+#' 
+#'   if (verbose)
+#'     cat(base, "^", x, " is ", ifelse(ret > thresh, "", "NOT "), "larger than ", thresh, "\n")
+#' 
+#'   return(ret)
+#' }
+#' 
+#' sample_function(5, base=2)
+#' sample_function(5:10, base=2)
+#' 
+#' 
+#'  some_function <- function(x, param1, param2, etc, ...) {
+#'    ARGS <- collectArgs(except="x")
+#'    return(
+#'            lapply(x, function(x_i) 
+#'               do.call(some_function, c(ARGS, x=x_i))
+#'            )
+#'          )
+#'  }
+NULL
+
+#' @rdname collectArgs-and-iterateWithArgs
+#' @export
+collectArgs <- function(except=c(), incl.dots=TRUE, all.names=TRUE, envir=parent.frame()) {
+## FORMERLY, envir was set as:  
+#     collectArgs <- function(except=c(), incl.dots=TRUE, all.names=TRUE, envir=as.environment(pos), pos=-1L) {
+
+## GENERAL USAGE:
+#  if (is.list(x)) {
+#    ARGS <- collectArgs(except="x")
+#    return(lapply(x, function(x_i) do.call(fwp, c(ARGS, x=x_i))))
+#  }
+
+  requireNamespace("magrittr")
+
+  force(envir)
+
+  if (!is.character(except))
+    stop("Invalid value for 'except'; it is not a character. HINT: 'except' should be the quoted string-name of the object, not the object itself.")
+
+  args <- ls(envir=envir, all.names=all.names) %>% setdiff("...")
+  args <- setdiff(args, except)
+  data.table::setattr(args, "names", args)
+  ret <- lapply(args, function(x) get(x, envir=envir) )
+  
+  if (incl.dots && exists("...", envir=envir))
+      ret <- c(ret, eval(quote(list(...)), envir=envir))
+  
+  return(ret)
+}
+
+
+#' @rdname collectArgs-and-iterateWithArgs
+#'
+#' @param arg_to_iterate_over Object, not the string-name of the object.
+#' @param nm.arg_to_iterate_over The string-name of the object. Defaults to \code{as.character(substitute(arg_to_iterate_over))}
+#'
+#' @export
+iterateWithArgs <- function(arg_to_iterate_over, FUNC, nm.arg_to_iterate_over=as.character(substitute(arg_to_iterate_over)), except=c(), incl.dots=TRUE, envir=parent.frame()) {
+
+  requireNamespace("magrittr")
+
+  force(envir)
+
+  if (!is.character(except))
+    stop("Invalid value for 'except'; it is not a character. HINT: 'except' should be the quoted string-name of the object, not the object itself.")
+
+  ## Func can be determined from the stack, 
+  ## However, this should be avoided, as it opens it up for bugs.
+  ## This is useful for quick interactive development only
+  if (missing(FUNC)) {
+    calls <- sys.calls()
+    FUNC <- calls[[length(calls) - 1L]] [[1L]] 
+    message("using '", as.character(FUNC), "' in iterateWithArgs() -- note it's safer to add  FUNC='", FUNC, "' in your call.")
+  }
+
+  if (nm.arg_to_iterate_over == ".")
+    stop("iterateWithArgs() cannot receive piped arguments without explicitly setting 'nm.arg_to_iterate_over'\neg use:  iterateWithArgs(x, nm.arg_to_iterate_over=\"x\", ..)")
+
+  FUNC <- match.fun(FUNC)
+
+  ARGS <- collectArgs(except=c(nm.arg_to_iterate_over, except), incl.dots=incl.dots, envir=envir)
+
+  .mk_list <- function(a) setNames(nm=nm.arg_to_iterate_over, obj=list(a))
+  
+  # ret <- try(lapply(arg_to_iterate_over, function(.x_i) {
+  #             do.call(FUNC, c(ARGS, .mk_list(.x_i)))
+  #          }), silent=TRUE)
+
+  tryCatch(
+    expr = lapply(arg_to_iterate_over, function(.x_i) {
+                do.call(FUNC, c(ARGS, .mk_list(.x_i)))
+           })
+    , error=function(e) {
+        if (grepl("^unused argument", e$message))
+          fmt <- "iterateWithArgs() failed due to an 'unused argument' error. The full error is:\n%s\n    %s\n%1$s\nHINT:  This is generally due to having introduced a variable in the\n       calling function, which in turn got picked up by collectArgs()\n       To fix this, add the variable to the 'except' argument of iterateWithArgs()"
+        else
+          fmt <- "iterateWithArgs() failed with the following error:\n\n%s"
+        stop(sprintf(fmt, pasteR(55), e$message), call.=FALSE)
+    }
+  ) ## // end of tryCatch
+} ## // end of iterateWithArgs()
+
+
+if (FALSE) 
+{
+
+  test_func <- function(x, second_arg=1:5, third_arg=NULL, fourth_arg=c("hello world")) {
+
+    catn("---------- Entering test_func() --------------")
+
+    dont_use_me_when_iterating <- "I should not have been used"
+    # i_will_cause_failure <- "jkhjkhkjh"
+
+    if (is.list(x)) {
+      return(iterateWithArgs(x, FUNC=test_func, except="dont_use_me_when_iterating"))
+    }
+
+    return(x^2)
+  }
+
+  test_func2 <- function(x, ...) {
+
+    if (is.list(x)) {
+      return(iterateWithArgs(x, except="dont_use_me_when_iterating"))
+    }
+
+    return(x ^ 3)
+  }
+
+  wrapper_func <- function(x) {
+    test_func2(x)
+  }
+  wrapper_func(as.list(1:3))
+
+
+  test_func(c(1:5))
+  test_func(as.list(1:5))
+}
+
+

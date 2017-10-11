@@ -1,11 +1,14 @@
 Package: collectArgs
-Title: What the Package Does (one line, title case)
+Title: Quickly and neatly collect arguments from one environment to pass to another
 Version: 0.0.1
-Authors@R: Rick Saporta <RickSaporta@gmail.com> [aut, cre], Mike Reca <michael.reca@vydia.com> [ctb]
-Description: What the package does (one paragraph).
-Depends: R (>= 3.3.3)
+Authors@R: c(Rick = person(given="Rick", family="Saporta", email="RickSaporta@gmail.com", role=c("aut","cre"), comment=NULL))
+Description: We often want to take all (or most) of the objects in one environment (such as the parameter values of a function) and pass them to another. This might be calling a second function, or iterating over a list, calling the same function. These functions wrap often repeated code.
+Depends: R (>= 3.0.2)
 License: MIT + file LICENSE
-Suggests: rsugeneral, data.table, magrittr
 Encoding: UTF-8
 LazyData: TRUE
-description: What the package does (one paragraph).
+Imports: magrittr
+RoxygenNote: 6.0.1.9000
+Suggests: knitr,
+    rmarkdown
+VignetteBuilder: knitr

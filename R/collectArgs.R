@@ -94,6 +94,7 @@ collectArgs <- function(except=c(), incl.dots=TRUE, all.names=TRUE, envir=parent
 
 #' @rdname collectArgs-and-iterateWithArgs
 #'
+#' @param FUNC function or string of length 1. function to iterate over.  Normally the same function in which \code{iterateWithArgs} is being called
 #' @param arg_to_iterate_over Object, not the string-name of the object.
 #' @param nm.arg_to_iterate_over The string-name of the object. Defaults to \code{as.character(substitute(arg_to_iterate_over))}
 #'
@@ -138,7 +139,7 @@ iterateWithArgs <- function(arg_to_iterate_over, FUNC, nm.arg_to_iterate_over=as
           fmt <- "iterateWithArgs() failed due to an 'unused argument' error. The full error is:\n%s\n    %s\n%1$s\nHINT:  This is generally due to having introduced a variable in the\n       calling function, which in turn got picked up by collectArgs()\n       To fix this, add the variable to the 'except' argument of iterateWithArgs()"
         else
           fmt <- "iterateWithArgs() failed with the following error:\n\n%s"
-        stop(sprintf(fmt, pasteR(55), e$message), call.=FALSE)
+        stop(sprintf(fmt, paste0(rep("-", 55), collapse=""), e$message), call.=FALSE)
     }
   ) ## // end of tryCatch
 } ## // end of iterateWithArgs()

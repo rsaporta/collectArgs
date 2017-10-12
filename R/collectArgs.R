@@ -1,7 +1,6 @@
-
-#==========================================================
-# Demo multi-function roxygen2 page using @rdname with NULL
-#==========================================================
+# ======================================================== #
+#   multi-function roxygen2 page using @rdname with NULL   #
+# ======================================================== #
 
 #' collectArgs and iterateWithArgs
 #' 

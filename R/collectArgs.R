@@ -84,11 +84,18 @@ collectArgs <- function(except=c(), incl.dots=TRUE, all.names=TRUE, envir=parent
   if (!is.character(except))
     stop("Invalid value for 'except'; it is not a character. HINT: 'except' should be the quoted string-name of the object, not the object itself.")
 
-  args <- ls(envir=envir, all.names=all.names) %>% setdiff("...") %>% setdiff(except) %>% setNames(., .)
-  # args <- ls(envir=envir, all.names=all.names) %>% setdiff("...")
-  # args <- setdiff(args, except) %>% setNames(., .)
-  # # data.table::setattr(args, "names", args)
-  ret <- lapply(args, function(x) get(x, envir=envir) )
+  # args <- ls(envir=envir, all.names=all.names) %>% 
+  #           setdiff("...") %>% 
+  #           setdiff(except) %>% 
+  #           setNames(., .)
+
+  # ret <- lapply(args, function(x) get(x, envir=envir) )
+
+  ret <- ls(envir=envir, all.names=all.names) %>% 
+            setdiff("...") %>% 
+            setdiff(except) %>% 
+            setNames(., .) %>%
+            lapply(function(x) get(x, envir=envir))
   
   if (incl.dots && exists("...", envir=envir))
       ret <- c(ret, eval(quote(list(...)), envir=envir))

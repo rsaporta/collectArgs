@@ -3,7 +3,7 @@ Title: Quickly and Neatly Collect Arguments from One Environment to Pass to Anot
 Version: 0.3.0
 Authors@R: c(Rick = person(given="Rick", family="Saporta", email="RickSaporta@gmail.com", role=c("aut","cre"), comment=NULL))
 Description: We often want to take all (or most) of the objects in one environment (such as the parameter values of a function) and pass them to another. This might be calling a second function, or iterating over a list, calling the same function. These functions wrap often repeated code.
-    Unstable development version (first committed on October 12, 2017)
+    Unstable development version (first committed on October 12, 2017).
 Depends: R (>= 3.0.2)
 License: MIT + file LICENSE
 Encoding: UTF-8

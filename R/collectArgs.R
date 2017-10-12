@@ -81,17 +81,16 @@ collectArgs <- function(except=c(), incl.dots=TRUE, all.names=TRUE, envir=parent
 
   force(envir)
 
-  if (!is.character(except))
+  if (length(except) && !is.character(except))
     stop("Invalid value for 'except'; it is not a character. HINT: 'except' should be the quoted string-name of the object, not the object itself.")
 
-  # args <- ls(envir=envir, all.names=all.names) %>% 
-  #           setdiff("...") %>% 
-  #           setdiff(except) %>% 
-  #           setNames(., .)
+  object_names <- ls(envir=envir, all.names=all.names)
 
-  # ret <- lapply(args, function(x) get(x, envir=envir) )
+  ## Check to make sure that no duplicate object names.  This should be impossible, but better safe than sorry.
+  if (anyDuplicated(object_names))
+    stop("There are duplicate object names in the environment. collectArgs will not be able to get() them all.")
 
-  ret <- ls(envir=envir, all.names=all.names) %>% 
+  ret <- object_names %>% 
             setdiff("...") %>% 
             setdiff(except) %>% 
             setNames(., .) %>%

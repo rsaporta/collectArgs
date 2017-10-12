@@ -134,10 +134,8 @@ iterateWithArgs <- function(arg_to_iterate_over, FUNC, nm.arg_to_iterate_over=as
 
   .mk_list <- function(a) setNames(nm=nm.arg_to_iterate_over, object=list(a))
   
-  # ret <- try(lapply(arg_to_iterate_over, function(.x_i) {
-  #             do.call(FUNC, c(ARGS, .mk_list(.x_i)))
-  #          }), silent=TRUE)
-
+  ## RETURN
+  ## We just need the lapply() statement.  Everything else is error-handling
   tryCatch(
     expr = lapply(arg_to_iterate_over, function(.x_i) {
                 do.call(FUNC, c(ARGS, .mk_list(.x_i)))
@@ -158,7 +156,7 @@ iterateWithArgs <- function(arg_to_iterate_over, FUNC, nm.arg_to_iterate_over=as
 #  
 #    test_func <- function(x, second_arg=1:5, third_arg=NULL, fourth_arg=c("hello world")) {
 #  
-#      catn("---------- Entering test_func() --------------")
+#      cat("---------- Entering test_func() --------------", "\n")
 #  
 #      dont_use_me_when_iterating <- "I should not have been used"
 #      # i_will_cause_failure <- "jkhjkhkjh"

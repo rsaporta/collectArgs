@@ -2,3 +2,5 @@
 
 export(collectArgs)
 export(iterateWithArgs)
+importFrom(magrittr,"%>%")
+importFrom(stats,setNames)

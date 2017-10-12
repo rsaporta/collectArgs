@@ -46,6 +46,7 @@ Functions to cleanly collect arguments from within one function or environment (
 }
 \examples{
 sample_function <- function(x, base, thresh=500, verbose=TRUE) {
+
   some_object    <- is.na(x) ## an example of an object that we will exclude
   another_object <- 1:10     ## an example of an object that we will exclude
 
@@ -66,6 +67,7 @@ sample_function(5:10, base=2)
 
 
  some_function <- function(x, param1, param2, etc, ...) {
+
    ARGS <- collectArgs(except="x")
    return(
            lapply(x, function(x_i) 

@@ -32,6 +32,8 @@
 #' @name collectArgs-and-iterateWithArgs
 #' @examples
 #' sample_function <- function(x, base, thresh=500, verbose=TRUE) {
+#'   require("magrittr")
+#' 
 #'   some_object    <- is.na(x) ## an example of an object that we will exclude
 #'   another_object <- 1:10     ## an example of an object that we will exclude
 #' 
@@ -52,6 +54,8 @@
 #' 
 #' 
 #'  some_function <- function(x, param1, param2, etc, ...) {
+#'    require("magrittr")
+#' 
 #'    ARGS <- collectArgs(except="x")
 #'    return(
 #'            lapply(x, function(x_i) 
@@ -62,6 +66,8 @@
 NULL
 
 #' @rdname collectArgs-and-iterateWithArgs
+#' @importFrom stats setNames
+#' @importFrom magrittr %>%
 #' @export
 collectArgs <- function(except=c(), incl.dots=TRUE, all.names=TRUE, envir=parent.frame()) {
 ## FORMERLY, envir was set as:  
@@ -73,16 +79,17 @@ collectArgs <- function(except=c(), incl.dots=TRUE, all.names=TRUE, envir=parent
 #    return(lapply(x, function(x_i) do.call(fwp, c(ARGS, x=x_i))))
 #  }
 
-  requireNamespace("magrittr")
+  stopifnot(requireNamespace("magrittr"))
 
   force(envir)
 
   if (!is.character(except))
     stop("Invalid value for 'except'; it is not a character. HINT: 'except' should be the quoted string-name of the object, not the object itself.")
 
-  args <- ls(envir=envir, all.names=all.names) %>% setdiff("...")
-  args <- setdiff(args, except)
-  data.table::setattr(args, "names", args)
+  args <- ls(envir=envir, all.names=all.names) %>% setdiff("...") %>% setdiff(except) %>% setNames(., .)
+  # args <- ls(envir=envir, all.names=all.names) %>% setdiff("...")
+  # args <- setdiff(args, except) %>% setNames(., .)
+  # # data.table::setattr(args, "names", args)
   ret <- lapply(args, function(x) get(x, envir=envir) )
   
   if (incl.dots && exists("...", envir=envir))
@@ -98,10 +105,11 @@ collectArgs <- function(except=c(), incl.dots=TRUE, all.names=TRUE, envir=parent
 #' @param arg_to_iterate_over Object, not the string-name of the object.
 #' @param nm.arg_to_iterate_over The string-name of the object. Defaults to \code{as.character(substitute(arg_to_iterate_over))}
 #'
+#' @importFrom stats setNames
 #' @export
 iterateWithArgs <- function(arg_to_iterate_over, FUNC, nm.arg_to_iterate_over=as.character(substitute(arg_to_iterate_over)), except=c(), incl.dots=TRUE, envir=parent.frame()) {
 
-  requireNamespace("magrittr")
+  stopifnot(requireNamespace("magrittr"))
 
   force(envir)
 
@@ -124,7 +132,7 @@ iterateWithArgs <- function(arg_to_iterate_over, FUNC, nm.arg_to_iterate_over=as
 
   ARGS <- collectArgs(except=c(nm.arg_to_iterate_over, except), incl.dots=incl.dots, envir=envir)
 
-  .mk_list <- function(a) setNames(nm=nm.arg_to_iterate_over, obj=list(a))
+  .mk_list <- function(a) setNames(nm=nm.arg_to_iterate_over, object=list(a))
   
   # ret <- try(lapply(arg_to_iterate_over, function(.x_i) {
   #             do.call(FUNC, c(ARGS, .mk_list(.x_i)))

@@ -32,7 +32,6 @@
 #' @name collectArgs-and-iterateWithArgs
 #' @examples
 #' sample_function <- function(x, base, thresh=500, verbose=TRUE) {
-#'   require("magrittr")
 #' 
 #'   some_object    <- is.na(x) ## an example of an object that we will exclude
 #'   another_object <- 1:10     ## an example of an object that we will exclude
@@ -54,7 +53,6 @@
 #' 
 #' 
 #'  some_function <- function(x, param1, param2, etc, ...) {
-#'    require("magrittr")
 #' 
 #'    ARGS <- collectArgs(except="x")
 #'    return(

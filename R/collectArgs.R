@@ -18,9 +18,12 @@
 #' @param except A vector of string values. Objects to \emph{NOT} include in the collection
 #'               Generally, the user will not want to pass objets created inside the function and hence will pass to except
 #'               _NOTE_ pass the quoted string-name of the object, not the object itself.
-#' @param incl.dots A single logical value. Should the \code{...} be collected as well?  Default is \code{TRUE}.
-#'                  \emph{NOTE: Has no effect in functions without dots argument}
+#' @param incl.dots A single logical value. Should the \code{...} be collected as well?  
+#'                 \emph{NOTE: Has no effect in functions without dots argument}
+#'                  Default is \code{TRUE}.
 #' @param all.names A single logical value. Passed to \code{ls()}. When \code{FALSE}, then objects whose name begins with a '.' are omitted from the collection
+#' 
+#' 
 #' @param envir     An \code{environment} object. Passed to \code{ls()}. The environment from which to collect the objects. Defaults to \code{parent.frame}
 #'
 #' @return 

@@ -18,8 +18,9 @@ iterateWithArgs(arg_to_iterate_over, FUNC,
 Generally, the user will not want to pass objets created inside the function and hence will pass to except
 _NOTE_ pass the quoted string-name of the object, not the object itself.}
 
-\item{incl.dots}{A single logical value. Should the \code{...} be collected as well?  Default is \code{TRUE}.
-\emph{NOTE: Has no effect in functions without dots argument}}
+\item{incl.dots}{A single logical value. Should the \code{...} be collected as well?
+\emph{NOTE: Has no effect in functions without dots argument}
+ Default is \code{TRUE}.}
 
 \item{all.names}{A single logical value. Passed to \code{ls()}. When \code{FALSE}, then objects whose name begins with a '.' are omitted from the collection}
 

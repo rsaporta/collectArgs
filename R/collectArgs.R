@@ -153,22 +153,35 @@ iterateWithArgs <- function(arg_to_iterate_over, FUNC, nm.arg_to_iterate_over=as
 
   FUNC <- match.fun(FUNC)
 
-  ARGS <- collectArgs(except=c(nm.arg_to_iterate_over, except), incl.dots=incl.dots, envir=envir)
+  ARGS_OTHER   <- collectArgs(except=c(nm.arg_to_iterate_over, except), incl.dots=incl.dots, envir=envir)
+  ARGS_TO_ITER <- collectArgs(except=c(names(ARGS_OTHER), except),      incl.dots=FALSE,     envir=envir)
 
-  .mk_list <- function(a) setNames(nm=nm.arg_to_iterate_over, object=list(a))
-  
-  ## RETURN
-  ## We just need the lapply() statement.  Everything else is error-handling
-  tryCatch(
-    expr = lapply(arg_to_iterate_over, function(.x_i) {
-                do.call(FUNC, c(ARGS, .mk_list(.x_i)))
-           })
-    , error=function(e) {
-        if (grepl("^unused argument", e$message))
-          fmt <- "iterateWithArgs() failed due to an 'unused argument' error. The full error is:\n%s\n    %s\n%1$s\nHINT:  This is generally due to having introduced a variable in the\n       calling function, which in turn got picked up by collectArgs()\n       To fix this, add the variable to the 'except' argument of iterateWithArgs()"
-        else
-          fmt <- "iterateWithArgs() failed with the following error:\n\n%s"
-        stop(sprintf(fmt, paste0(rep("-", 55), collapse=""), e$message), call.=FALSE)
-    }
-  ) ## // end of tryCatch
+&&&&&&&&&&&&& TODO: 
+## I THINK THIS WILL WORK
+## We need an example to test
+## If it does work, have SIMPLIFY and USE.NAMES be part of the iterateWithArgs()
+## also test for when args to iter is length 1
+## What about hwne it is of length 0? Can we allow this? 
+&&&&&&&&&&&&&&&&&&&&&
+SIMPLIFY=FALSE
+USE.NAMES=FALSE
+  ARGS_FOR_MAPPLY <- c(list(FUN=FUNC), ARGS_TO_ITER, MoreArgs=list(ARGS_OTHER), SIMPLIFY=SIMPLIFY, USE.NAMES=USE.NAMES)
+  do.call(mapply, ARGS_FOR_MAPPLY) 
+#
+#  .mk_list <- function(a) setNames(nm=nm.arg_to_iterate_over, object=list(a))
+#  
+#  ## RETURN
+#  ## We just need the lapply() statement.  Everything else is error-handling
+#  tryCatch(
+#    expr = lapply(arg_to_iterate_over, function(.x_i) {
+#                do.call(FUNC, c(ARGS, .mk_list(.x_i)))
+#           })
+#    , error=function(e) {
+#        if (grepl("^unused argument", e$message))
+#          fmt <- "iterateWithArgs() failed due to an 'unused argument' error. The full error is:\n%s\n    %s\n%1$s\nHINT:  This is generally due to having introduced a variable in the\n       calling function, which in turn got picked up by collectArgs()\n       To fix this, add the variable to the 'except' argument of iterateWithArgs()"
+#        else
+#          fmt <- "iterateWithArgs() failed with the following error:\n\n%s"
+#        stop(sprintf(fmt, paste0(rep("-", 55), collapse=""), e$message), call.=FALSE)
+#    }
+#  ) ## // end of tryCatch
 } ## // end of iterateWithArgs()

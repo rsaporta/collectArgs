@@ -117,9 +117,24 @@ iterateWithArgs <- function(arg_to_iterate_over, FUNC, nm.arg_to_iterate_over=as
 
   stopifnot(requireNamespace("magrittr"))
 
+  if (missing(nm.arg_to_iterate_over) && length(nm.arg_to_iterate_over) > 1) {
+    if (is.list(arg_to_iterate_over))
+      nm.arg_to_iterate_over <- nm.arg_to_iterate_over[nm.arg_to_iterate_over != "list"]
+  }
+
+  ## VALIDATE -------------------------------------------------------
+  ## CONFIRM SAME LENGTH
+  if (length(nm.arg_to_iterate_over) != length(arg_to_iterate_over))
+    stop("\nargument mismatch:\n\n      'arg_to_iterate_over' has length ", length(arg_to_iterate_over), "\n   'nm.arg_to_iterate_over' has length ", length(nm.arg_to_iterate_over))
+
+  if (length(nm.arg_to_iterate_over) > 1 && !is.list(arg_to_iterate_over))
+    warning("arg_to_iterate_over is not a list. -- Results might be off.")
+  ## VALIDATE -------------------------------------------------------
+
+
   force(envir)
 
-  if (!is.character(except))
+  if (length(except) && !is.character(except))
     stop("Invalid value for 'except'; it is not a character. HINT: 'except' should be the quoted string-name of the object, not the object itself.")
 
   ## Func can be determined from the stack, 
@@ -131,8 +146,10 @@ iterateWithArgs <- function(arg_to_iterate_over, FUNC, nm.arg_to_iterate_over=as
     message("using '", as.character(FUNC), "' in iterateWithArgs() -- note it's safer to add  FUNC='", FUNC, "' in your call.")
   }
 
-  if (nm.arg_to_iterate_over == ".")
-    stop("iterateWithArgs() cannot receive piped arguments without explicitly setting 'nm.arg_to_iterate_over'\neg use:  iterateWithArgs(x, nm.arg_to_iterate_over=\"x\", ..)")
+  if (any(nm.arg_to_iterate_over == ".")) {
+    # stop("iterateWithArgs() cannot receive piped arguments without explicitly setting 'nm.arg_to_iterate_over'\neg use:  iterateWithArgs(x, nm.arg_to_iterate_over=\"x\", ..)")
+    stop("iterateWithArgs() cannot receive piped arguments ")
+  }
 
   FUNC <- match.fun(FUNC)
 

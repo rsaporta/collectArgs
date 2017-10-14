@@ -2,6 +2,7 @@
 
 ## UPDATES SINCE PREVIOUS SUBMISSION
 * Fixed Capitalization in Title, as per feedback from Uwe Ligges
+* Minor function improvements
 * Additional Tests added via testthat
 
 ## Test environments
@@ -9,9 +10,7 @@
 * ubuntu 12.04, R 3.1.2
 
 ## R CMD check results
-There were no ERRORs
-There were no WARNINGs
-There were no NOTEs
+0 errors | 0 warnings | 0 notes
 
 ## Downstream dependencies
 This is a brand new package and 

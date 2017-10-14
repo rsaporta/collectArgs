@@ -109,7 +109,9 @@ collectArgs <- function(except=c(), incl.dots=TRUE, all.names=TRUE, envir=parent
 #'
 #' @param FUNC function or string of length 1. function to iterate over.  Normally the same function in which \code{iterateWithArgs} is being called
 #' @param arg_to_iterate_over Object, not the string-name of the object.
-#' @param nm.arg_to_iterate_over The string-name of the object. Defaults to \code{as.character(substitute(arg_to_iterate_over))}
+#' @param nm.arg_to_iterate_over The string-name of the object. 
+#' 
+#'        Default is \code{as.character(substitute(arg_to_iterate_over))}
 #'
 #' @importFrom stats setNames
 #' @export
@@ -124,10 +126,12 @@ iterateWithArgs <- function(arg_to_iterate_over, FUNC, nm.arg_to_iterate_over=as
 
   ## VALIDATE -------------------------------------------------------
   ## CONFIRM SAME LENGTH
-  if (length(nm.arg_to_iterate_over) != length(arg_to_iterate_over))
+  L.vals <- length(arg_to_iterate_over)
+  L.nms  <- length(nm.arg_to_iterate_over)
+  if (!(L.vals == L.nms || 1 %in% c(L.vals, L.nms)))
     stop("\nargument mismatch:\n\n      'arg_to_iterate_over' has length ", length(arg_to_iterate_over), "\n   'nm.arg_to_iterate_over' has length ", length(nm.arg_to_iterate_over))
 
-  if (length(nm.arg_to_iterate_over) > 1 && !is.list(arg_to_iterate_over))
+  if (L.nms > 1 && !is.list(arg_to_iterate_over))
     warning("arg_to_iterate_over is not a list. -- Results might be off.")
   ## VALIDATE -------------------------------------------------------
 

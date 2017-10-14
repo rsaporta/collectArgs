@@ -30,7 +30,9 @@ _NOTE_ pass the quoted string-name of the object, not the object itself.}
 
 \item{FUNC}{function or string of length 1. function to iterate over.  Normally the same function in which \code{iterateWithArgs} is being called}
 
-\item{nm.arg_to_iterate_over}{The string-name of the object. Defaults to \code{as.character(substitute(arg_to_iterate_over))}}
+\item{nm.arg_to_iterate_over}{The string-name of the object. 
+
+       Default is \code{as.character(substitute(arg_to_iterate_over))}}
 }
 \value{
 for \code{collectArgs}: A list of all of the objects in \code{envir} (less any objects excluded via the parameters). The names of the list are the names of object in \code{envir}.

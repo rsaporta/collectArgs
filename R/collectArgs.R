@@ -23,6 +23,8 @@
 #'                  Default is \code{TRUE}.
 #' @param all.names A single logical value. Passed to \code{ls()}. When \code{FALSE}, then objects whose name begins with a '.' are omitted from the collection
 #' 
+#' @param increment.level.verbose (For packages and functions that use \code{level.verbose}) If this flag is set to TRUE and there is an arg called \code{level.verbose} of type numeric or integer, it will be incremented by 1.
+#' 
 #' 
 #' @param envir     An \code{environment} object. Passed to \code{ls()}. The environment from which to collect the objects. Defaults to \code{parent.frame}
 #'
@@ -69,7 +71,7 @@ NULL
 #' @importFrom stats setNames
 #' @importFrom magrittr %>%
 #' @export
-collectArgs <- function(except=c(), incl.dots=TRUE, all.names=TRUE, envir=parent.frame()) {
+collectArgs <- function(except=c(), incl.dots=TRUE, all.names=TRUE, increment.level.verbose=getOption("collectArgs.increment.level.verbose", default=FALSE), envir=parent.frame()) {
 ## FORMERLY, envir was set as:  
 #     collectArgs <- function(except=c(), incl.dots=TRUE, all.names=TRUE, envir=as.environment(pos), pos=-1L) {
 
@@ -98,6 +100,11 @@ collectArgs <- function(except=c(), incl.dots=TRUE, all.names=TRUE, envir=parent
             setNames(., .) %>%
             lapply(function(x) get(x, envir=envir))
   
+  if (increment.level.verbose) {
+    if ("level.verbose" %in% names(ret) &&   ( is.numeric(ret[["level.verbose"]]) || is.numeric(ret[["level.verbose"]]) ))
+        ret[["level.verbose"]] <- ret[["level.verbose"]] + 1L
+  }
+
   if (incl.dots && exists("...", envir=envir))
       ret <- c(ret, eval(quote(list(...)), envir=envir))
   
@@ -115,7 +122,7 @@ collectArgs <- function(except=c(), incl.dots=TRUE, all.names=TRUE, envir=parent
 #'
 #' @importFrom stats setNames
 #' @export
-iterateWithArgs <- function(arg_to_iterate_over, FUNC, nm.arg_to_iterate_over=as.character(substitute(arg_to_iterate_over)), except=c(), incl.dots=TRUE, envir=parent.frame()) {
+iterateWithArgs <- function(arg_to_iterate_over, FUNC, nm.arg_to_iterate_over=as.character(substitute(arg_to_iterate_over)), except=c(), incl.dots=TRUE, increment.level.verbose=getOption("collectArgs.increment.level.verbose", default=FALSE), envir=parent.frame()) {
 
   stopifnot(requireNamespace("magrittr"))
 

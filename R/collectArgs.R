@@ -126,6 +126,9 @@ iterateWithArgs <- function(arg_to_iterate_over, FUNC, nm.arg_to_iterate_over=as
 
   stopifnot(requireNamespace("magrittr"))
 
+  if (identical(parent.frame(), globalenv()))
+    stop("cannot call iterateWithArgs() from the globalenv()")
+
   if (missing(nm.arg_to_iterate_over) && length(nm.arg_to_iterate_over) > 1) {
     if (is.list(arg_to_iterate_over))
       nm.arg_to_iterate_over <- nm.arg_to_iterate_over[nm.arg_to_iterate_over != "list"]
@@ -175,11 +178,15 @@ iterateWithArgs <- function(arg_to_iterate_over, FUNC, nm.arg_to_iterate_over=as
                 do.call(FUNC, c(ARGS, .mk_list(.x_i)))
            })
     , error=function(e) {
-        if (grepl("^unused argument", e$message))
-          fmt <- "iterateWithArgs() failed due to an 'unused argument' error. The full error is:\n%s\n    %s\n%1$s\nHINT:  This is generally due to having introduced a variable in the\n       calling function, which in turn got picked up by collectArgs()\n       To fix this, add the variable to the 'except' argument of iterateWithArgs()"
-        else
-          fmt <- "iterateWithArgs() failed with the following error:\n\n%s"
-        stop(sprintf(fmt, paste0(rep("-", 55), collapse=""), e$message), call.=FALSE)
+        prefix <- "iterateWithArgs() failed with the following error:"
+        hint <- ""
+        if (grepl("^unused argument", e$message)) {
+          prefix <- "iterateWithArgs() failed due to an 'unused argument' error. The full error is:"
+          hint <- "HINT:  This is generally due to having introduced a variable in the\n       calling function, which in turn got picked up by collectArgs()\n       To fix this, add the variable to the 'except' argument of iterateWithArgs()"
+        }
+        fmt <- paste0(prefix, "\n%2$s\n    %1$s\n%2$s\n", hint)
+        hr <- paste0(rep("-", getOption("width", default = 80)), collapse="")
+        stop(sprintf(fmt, e$message, hr), call.=FALSE)
     }
   ) ## // end of tryCatch
 } ## // end of iterateWithArgs()

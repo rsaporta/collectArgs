@@ -160,6 +160,16 @@ iterateWithArgs <- function(arg_to_iterate_over, FUNC, nm.arg_to_iterate_over=as
     message("using '", as.character(FUNC), "' in iterateWithArgs() -- note it's safer to add  FUNC='", FUNC, "' in your call.")
   }
 
+  ## capture the function name for error messaging
+  if (is.character(FUNC)) {
+    func_nm <- FUNC
+  } else {
+    func_nm <- as.character(as.expression(substitute(FUNC)))
+    if (nchar(func_nm) > 50 && grepl("^\\s*function\\s*\\(", func_nm))
+      func_nm <- "*an anonymous function*"
+  }
+
+
   if (any(nm.arg_to_iterate_over == ".")) {
     # stop("iterateWithArgs() cannot receive piped arguments without explicitly setting 'nm.arg_to_iterate_over'\neg use:  iterateWithArgs(x, nm.arg_to_iterate_over=\"x\", ..)")
     stop("iterateWithArgs() cannot receive piped arguments ")
@@ -178,15 +188,17 @@ iterateWithArgs <- function(arg_to_iterate_over, FUNC, nm.arg_to_iterate_over=as
                 do.call(FUNC, c(ARGS, .mk_list(.x_i)))
            })
     , error=function(e) {
+        func_info <- paste0("For function `", func_nm, "`, ")
         prefix <- "iterateWithArgs() failed with the following error:"
         hint <- ""
         if (grepl("^unused argument", e$message)) {
           prefix <- "iterateWithArgs() failed due to an 'unused argument' error. The full error is:"
           hint <- "HINT:  This is generally due to having introduced a variable in the\n       calling function, which in turn got picked up by collectArgs()\n       To fix this, add the variable to the 'except' argument of iterateWithArgs()"
         }
-        fmt <- paste0(prefix, "\n%2$s\n    %1$s\n%2$s\n", hint)
+        fmt <- paste0(func_info, prefix, "\n%2$s\n    %1$s\n%2$s\n", hint)
         hr <- paste0(rep("-", getOption("width", default = 80)), collapse="")
-        stop(sprintf(fmt, e$message, hr), call.=FALSE)
+        error_message <- if (!func_nm %in% as.character(e$call)) paste0("Error in ", as.character(as.expression(e$call)), ":\n      ", e$message) else e$message
+        stop(sprintf(fmt, error_message, hr), call.=FALSE)
     }
   ) ## // end of tryCatch
 } ## // end of iterateWithArgs()
